@@ -8,12 +8,27 @@ public class WeekendRequest {
     private LocalDate startDate;
 
 
-    public double getAverageSalary() { return averageSalary; }
-    public void setAverageSalary(double averageSalary) { this.averageSalary = averageSalary; }
+    public double getAverageSalary() {
+        return averageSalary;
+    }
 
-    public int getVacationDays() { return vacationDays; }
-    public void setVacationDays(int vacationDays) { this.vacationDays = vacationDays; }
+    public void setAverageSalary(double averageSalary) {
+        this.averageSalary = averageSalary;
+    }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public int getVacationDays() {
+        return vacationDays;
+    }
+
+    public void setVacationDays(int vacationDays) {
+        this.vacationDays = vacationDays;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 }

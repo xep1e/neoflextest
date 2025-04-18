@@ -1,12 +1,11 @@
 package com.example.WeekendKalculator.Controller;
 
-import com.example.WeekendKalculator.model.WeekendRequest;
-
+import com.example.WeekendKalculator.exceptions.InvalidDateException;
+import com.example.WeekendKalculator.exceptions.InvalidNumberException;
 import com.example.WeekendKalculator.services.WeekendKalculatorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 @RestController
 @RequestMapping("/api")
 public class WeekendKalculatorController {
@@ -18,14 +17,18 @@ public class WeekendKalculatorController {
 
     @GetMapping("/calculate")
     public ResponseEntity<?> calculate(
-            @RequestParam double averageSalary,
-            @RequestParam int vacationDays,
+            @RequestParam String averageSalary,
+            @RequestParam String vacationDays,
             @RequestParam(required = false) String startDate) {
 
-        return ResponseEntity.ok(service.calculate(
-                averageSalary,
-                vacationDays,
-                startDate
-        ));
+        try {
+            return ResponseEntity.ok(service.calculateFromStrings(
+                    averageSalary,
+                    vacationDays,
+                    startDate
+            ));
+        } catch (InvalidNumberException | InvalidDateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

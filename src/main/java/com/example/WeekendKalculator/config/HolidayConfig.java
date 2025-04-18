@@ -2,7 +2,9 @@ package com.example.WeekendKalculator.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Configuration
@@ -10,32 +12,40 @@ public class HolidayConfig {
 
     @Bean
     public Set<LocalDate> russianHolidays() {
-        return Set.of(
-                // Январь
-                LocalDate.of(2024, 1, 1),  // Новый год
-                LocalDate.of(2024, 1, 2),
-                LocalDate.of(2024, 1, 3),
-                LocalDate.of(2024, 1, 4),
-                LocalDate.of(2024, 1, 5),
-                LocalDate.of(2024, 1, 6),
-                LocalDate.of(2024, 1, 7),  // Рождество
-                LocalDate.of(2024, 1, 8),
+        Set<LocalDate> holidays = new HashSet<>();
+        int currentYear = LocalDate.now().getYear();
 
-                // Февраль
-                LocalDate.of(2024, 2, 23), // День защитника Отечества
+        // Добавляем праздники на текущий и следующий год
+        for (int year = currentYear; year <= currentYear + 1; year++) {
+            holidays.addAll(Set.of(
+                    // Январь
+                    LocalDate.of(year, 1, 1),  // Новый год
+                    LocalDate.of(year, 1, 2),
+                    LocalDate.of(year, 1, 3),
+                    LocalDate.of(year, 1, 4),
+                    LocalDate.of(year, 1, 5),
+                    LocalDate.of(year, 1, 6),
+                    LocalDate.of(year, 1, 7),  // Рождество
+                    LocalDate.of(year, 1, 8),
 
-                // Март
-                LocalDate.of(2024, 3, 8),  // Международный женский день
+                    // Февраль
+                    LocalDate.of(year, 2, 23), // День защитника Отечества
 
-                // Май
-                LocalDate.of(2024, 5, 1),  // Праздник Весны и Труда
-                LocalDate.of(2024, 5, 9),  // День Победы
+                    // Март
+                    LocalDate.of(year, 3, 8),  // Международный женский день
 
-                // Июнь
-                LocalDate.of(2024, 6, 12), // День России
+                    // Май
+                    LocalDate.of(year, 5, 1),  // Праздник Весны и Труда
+                    LocalDate.of(year, 5, 9),  // День Победы
 
-                // Ноябрь
-                LocalDate.of(2024, 11, 4)  // День народного единства
-        );
+                    // Июнь
+                    LocalDate.of(year, 6, 12), // День России
+
+                    // Ноябрь
+                    LocalDate.of(year, 11, 4)  // День народного единства
+            ));
+        }
+
+        return holidays;
     }
 }

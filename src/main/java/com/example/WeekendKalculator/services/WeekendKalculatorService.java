@@ -1,11 +1,11 @@
 package com.example.WeekendKalculator.services;
 
 import com.example.WeekendKalculator.config.HolidayConfig;
-import com.example.WeekendKalculator.exceptions.InvalidDateException;
-import com.example.WeekendKalculator.exceptions.ZeroDaysException;
+import com.example.WeekendKalculator.exceptions.*;
 import com.example.WeekendKalculator.model.WeekendRequest;
 import com.example.WeekendKalculator.model.WeekendResponse;
 import org.springframework.stereotype.Service;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -20,25 +20,22 @@ public class WeekendKalculatorService {
     public WeekendKalculatorService(HolidayConfig holidayConfig) {
         this.holidays = holidayConfig.russianHolidays();
     }
-    public WeekendResponse calculate(double averageSalary, int vacationDays, String startDateStr) {
+
+    public WeekendResponse calculateFromStrings(String salaryStr, String daysStr, String startDateStr) {
+        int salary = parsePositiveInt(salaryStr, "Зарплата");
+        int days = parsePositiveInt(daysStr, "Дни отпуска");
+        LocalDate startDate = parseDate(startDateStr);
+
         WeekendRequest request = new WeekendRequest();
-
-        request.setAverageSalary(averageSalary);
-        request.setVacationDays(vacationDays);
-
-        if (startDateStr != null) {
-            try {
-                request.setStartDate(LocalDate.parse(startDateStr));
-            } catch (DateTimeParseException e) {
-                throw new InvalidDateException("Неверный формат даты. Используйте YYYY-MM-DD");
-            }
-        }
+        request.setAverageSalary(salary);
+        request.setVacationDays(days);
+        request.setStartDate(startDate);
 
         return calculate(request);
     }
+
     public WeekendResponse calculate(WeekendRequest request) {
         validateRequest(request);
-        validateDate(request.getStartDate());
 
         double dailySalary = calculateDailySalary(request.getAverageSalary());
         int workingDays = calculateWorkingDays(request);
@@ -51,6 +48,33 @@ public class WeekendKalculatorService {
         return new WeekendResponse(payment);
     }
 
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(dateStr);
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateException("Неверный формат даты. Используйте YYYY-MM-DD");
+        }
+    }
+
+    private int parsePositiveInt(String value, String fieldName) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new InvalidNumberException(fieldName + " не может быть пустым");
+        }
+
+        try {
+            int num = Integer.parseInt(value);
+            if (num <= 0) {
+                throw new InvalidNumberException(fieldName + " должны быть положительным целым числом");
+            }
+            return num;
+        } catch (NumberFormatException e) {
+            throw new InvalidNumberException(fieldName + " должны быть целым числом");
+        }
+    }
+
     private void validateRequest(WeekendRequest request) {
         if (request.getAverageSalary() <= 0) {
             throw new IllegalArgumentException("Зарплата должна быть положительной");
@@ -60,21 +84,15 @@ public class WeekendKalculatorService {
         }
     }
 
-    private void validateDate(LocalDate date) {
-        if (date != null && date.toString().length() != 10) {
-            throw new InvalidDateException("Неверный формат даты. Используйте YYYY-MM-DD");
-        }
-    }
-
     private double calculateDailySalary(double averageSalary) {
-
         return averageSalary / AVG_DAYS_IN_MONTH;
     }
 
     private int calculateWorkingDays(WeekendRequest request) {
-        return request.getStartDate() != null
-                ? countWorkingDays(request.getStartDate(), request.getVacationDays())
-                : request.getVacationDays();
+        if (request.getStartDate() == null) {
+            return request.getVacationDays();
+        }
+        return countWorkingDays(request.getStartDate(), request.getVacationDays());
     }
 
     private double calculatePayment(double dailySalary, int workingDays) {
